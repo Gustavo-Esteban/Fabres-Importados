@@ -28,7 +28,7 @@ jobs:
       - name: Build Angular (produção)
         run: npx nx build shop --configuration=production
 
-      - name: Deploy para Hostinger via FTP
+      - name: Deploy para Hostinger via FTP (substituindo site, mantendo WordPress)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -36,8 +36,13 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: dist/apps/shop/browser/
           server-dir: /public_html/
-          # Se quiser em subdiretório, use: /public_html/loja/
           dangerous-clean-slate: false
+          exclude: |
+            wp-admin/**
+            wp-includes/**
+            wp-content/**
+            *.php
+            .htaccess
 
   # ──────────────────────────────────────────────────────────────
   # JOB 2: Deploy do NestJS backend no Railway
