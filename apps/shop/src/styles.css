@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+/* ── FABRES IMPORTADOS - DESIGN TOKENS (LIGHT) ─────────────────── */
+:root {
+  /* Fundo claro */
+  --color-bg:          #FAFAFA;
+  --color-bg-alt:      #F2F2F2;
+  --color-bg-card:     #FFFFFF;
+  --color-border:      #E5E5E5;
+  --color-border-dark: #CCCCCC;
+
+  /* Preto e branco */
+  --color-black:   #111111;
+  --color-dark:    #222222;
+  --color-mid:     #555555;
+  --color-muted:   #999999;
+  --color-white:   #FFFFFF;
+
+  /* Aliases legados (compatibilidade com componentes existentes) */
+  --color-obsidian:  #111111;
+  --color-charcoal:  #FFFFFF;
+  --color-deep-gray: #E5E5E5;
+  --color-mid-gray:  #555555;
+  --color-gold:      #111111;
+  --color-gold-light:#333333;
+  --color-gold-pale: #F2F2F2;
+  --color-cream:     #111111;
+  --color-error:     #CC0000;
+  --color-success:   #1A7F3C;
+
+  /* Tipografia - DM Sans (arredondada, moderna) */
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', 'Helvetica Neue', sans-serif;
+  --font-label:   'DM Sans', 'Helvetica Neue', sans-serif;
+
+  --transition:   250ms ease;
+  --radius-sm:    8px;
+  --radius-md:    14px;
+  --radius-lg:    22px;
+  --shadow-card:  0 2px 12px rgba(0,0,0,0.07);
+  --shadow-gold:  0 4px 20px rgba(0,0,0,0.12);
+}
+
+/* ── RESET ──────────────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-dark);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a            { text-decoration: none; color: inherit; }
+button       { font-family: inherit; cursor: pointer; border: none; }
+img          { max-width: 100%; height: auto; display: block; }
+input, select, textarea { font-family: inherit; }
+
+/* ── UTILITÁRIOS ─────────────────────────────────────────────────── */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Botão primário: preto com texto branco */
+.btn-gold {
+  background: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 13px 28px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--color-black);
+  transition: background var(--transition), box-shadow var(--transition);
+  display: inline-block;
+}
+.btn-gold:hover {
+  background: var(--color-dark);
+  box-shadow: var(--shadow-gold);
+}
+
+/* Botão secundário: borda preta, fundo branco */
+.btn-outline {
+  background: var(--color-white);
+  color: var(--color-black);
+  border: 1.5px solid var(--color-black);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+  display: inline-block;
+}
+.btn-outline:hover {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+/* Títulos e divisores */
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 400;
+  color: var(--color-black);
+}
+
+.section-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+
+.gold-divider {
+  width: 40px;
+  height: 2px;
+  background: var(--color-black);
+  margin: 14px auto;
+  border-radius: 2px;
+}

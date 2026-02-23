@@ -1,0 +1,71 @@
+<!-- ── HEADER ──────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header__container">
+
+    <!-- Logo -->
+    <a routerLink="/" class="header__logo" (click)="closeMenu()">
+      <span class="header__logo-name">Fabre's</span>
+      <span class="header__logo-sub">Importados</span>
+    </a>
+
+    <!-- Nav desktop -->
+    <nav class="header__nav" [class.header__nav--open]="mobileMenuOpen()">
+      <a routerLink="/"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }"
+         class="header__link"
+         (click)="closeMenu()">Home</a>
+      <a routerLink="/loja"
+         routerLinkActive="active"
+         class="header__link"
+         (click)="closeMenu()">Loja</a>
+      <a routerLink="/sobre"
+         routerLinkActive="active"
+         class="header__link"
+         (click)="closeMenu()">Sobre</a>
+    </nav>
+
+    <!-- Right: cart + hamburger -->
+    <div class="header__right">
+      <a routerLink="/carrinho" class="header__cart" aria-label="Carrinho">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        @if (cartCount() > 0) {
+          <span class="header__badge">{{ cartCount() }}</span>
+        }
+      </a>
+      <button class="header__hamburger" (click)="toggleMenu()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+<!-- ── CONTENT ────────────────────────────────────────────────── -->
+<main>
+  <router-outlet />
+</main>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer__container">
+    <div class="footer__brand">
+      <span class="footer__logo">Fabre's <em>Importados</em></span>
+      <p class="footer__tagline">Fragrâncias de luxo para momentos únicos</p>
+    </div>
+    <div class="footer__links">
+      <a routerLink="/">Home</a>
+      <a routerLink="/loja">Loja</a>
+      <a routerLink="/sobre">Sobre</a>
+      <a routerLink="/carrinho">Carrinho</a>
+    </div>
+    <div class="footer__divider"></div>
+    <p class="footer__copy">© 2025 Fabre's Importados. Todos os direitos reservados.</p>
+  </div>
+</footer>

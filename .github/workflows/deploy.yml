@@ -1,0 +1,56 @@
+name: Build & Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  # ──────────────────────────────────────────────────────────────
+  # JOB 1: Build do Angular e deploy do frontend na Hostinger (FTP)
+  # ──────────────────────────────────────────────────────────────
+  deploy-frontend:
+    name: Frontend → Hostinger (FTP)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build Angular (produção)
+        run: npx nx build shop --configuration=production
+
+      - name: Deploy para Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: dist/apps/shop/browser/
+          server-dir: /public_html/
+          # Se quiser em subdiretório, use: /public_html/loja/
+          dangerous-clean-slate: false
+
+  # ──────────────────────────────────────────────────────────────
+  # JOB 2: Deploy do NestJS backend no Railway
+  # (Railway faz deploy automático pelo GitHub — este job é opcional)
+  # ──────────────────────────────────────────────────────────────
+  # deploy-backend:
+  #   name: Backend → Railway
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Install Railway CLI e deploy
+  #       run: |
+  #         npm install -g @railway/cli
+  #         railway up --service backend
+  #       env:
+  #         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

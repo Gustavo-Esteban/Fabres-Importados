@@ -1,0 +1,224 @@
+/* ── HEADER ───────────────────────────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+
+.header__container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* Logo */
+.header__logo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  min-width: 120px;
+}
+
+.header__logo-name {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--color-black);
+  letter-spacing: 0.01em;
+}
+
+.header__logo-sub {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* Nav */
+.header__nav {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+}
+
+.header__link {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-mid);
+  transition: color var(--transition);
+  position: relative;
+  padding-bottom: 2px;
+}
+
+.header__link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1.5px;
+  background: var(--color-black);
+  transition: width var(--transition);
+  border-radius: 2px;
+}
+
+.header__link:hover,
+.header__link.active { color: var(--color-black); }
+
+.header__link:hover::after,
+.header__link.active::after { width: 100%; }
+
+/* Right: cart + hamburger */
+.header__right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 120px;
+  justify-content: flex-end;
+}
+
+.header__cart {
+  position: relative;
+  color: var(--color-mid);
+  transition: color var(--transition);
+  display: flex;
+  align-items: center;
+}
+
+.header__cart:hover { color: var(--color-black); }
+
+.header__badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header__hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  padding: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.header__hamburger span {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: var(--color-mid);
+  transition: background var(--transition);
+}
+
+.header__hamburger:hover span { background: var(--color-black); }
+
+/* ── FOOTER ───────────────────────────────────────────────────────── */
+.footer {
+  background: var(--color-black);
+  padding: 52px 0 32px;
+  margin-top: 80px;
+}
+
+.footer__container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.footer__brand { margin-bottom: 24px; }
+
+.footer__logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--color-white);
+}
+
+.footer__logo em { font-style: italic; font-weight: 300; }
+
+.footer__tagline {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.45);
+  margin-top: 6px;
+}
+
+.footer__links {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin: 24px 0;
+}
+
+.footer__links a {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  transition: color var(--transition);
+}
+
+.footer__links a:hover { color: var(--color-white); }
+
+.footer__divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(255,255,255,0.12);
+  margin: 24px auto;
+}
+
+.footer__copy {
+  font-size: 0.76rem;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .header__nav {
+    display: none;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    padding: 24px;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .header__nav--open { display: flex; }
+  .header__hamburger { display: flex; }
+  .header__container { position: relative; }
+  .footer__links { flex-wrap: wrap; gap: 16px; }
+}
