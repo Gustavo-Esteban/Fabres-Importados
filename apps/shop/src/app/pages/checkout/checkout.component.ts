@@ -159,10 +159,18 @@ import { toSignal } from '@angular/core/rxjs-interop';
             }
 
             <div class="summary__divider"></div>
+
+            @if (coupon()) {
+              <div class="summary__coupon-row">
+                <span>Desconto</span>
+                <span class="summary__discount">-R$ {{ discount() | number:'1.2-2' }}</span>
+              </div>
+            }
+
             <div class="summary__total">
               <span>Total</span>
               <span class="summary__total-value">
-                R$ {{ total() | number:'1.2-2' }}
+                R$ {{ finalTotal() | number:'1.2-2' }}
               </span>
             </div>
           </aside>
@@ -344,6 +352,19 @@ import { toSignal } from '@angular/core/rxjs-interop';
       background: var(--color-deep-gray);
     }
 
+    .summary__coupon-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-label);
+      font-size: 0.85rem;
+      color: var(--color-muted);
+    }
+
+    .summary__discount {
+      color: #4caf50;
+      font-weight: 600;
+    }
+
     .summary__total {
       display: flex;
       justify-content: space-between;
@@ -417,6 +438,9 @@ export class CheckoutComponent {
 
   readonly items = toSignal(this.cartService.cart$, { initialValue: [] });
   readonly total = toSignal(this.cartService.total$, { initialValue: 0 });
+  readonly discount = toSignal(this.cartService.discount$, { initialValue: 0 });
+  readonly finalTotal = toSignal(this.cartService.finalTotal$, { initialValue: 0 });
+  readonly coupon = toSignal(this.cartService.coupon$, { initialValue: null });
   readonly enviando = signal(false);
   readonly erroSubmit = signal(false);
   readonly pedidoCriado = signal(false);
@@ -465,6 +489,7 @@ export class CheckoutComponent {
         country:    'BR',
       },
       line_items: lineItems,
+      coupon_lines: this.cartService.coupon ? [{ code: this.cartService.coupon.code }] : [],
     };
 
     this.woo.criarPedido(payload).subscribe({

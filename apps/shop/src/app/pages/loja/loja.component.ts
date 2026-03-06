@@ -34,6 +34,17 @@ import { ProdutoCardComponent } from '../../shared/produto-card/produto-card.com
       <div class="loja__layout">
         <!-- Sidebar filtro -->
         <aside class="loja__sidebar">
+          <div class="sidebar__search">
+            <h3 class="sidebar__title">Buscar</h3>
+            <input
+              type="text"
+              [(ngModel)]="buscaTexto"
+              (ngModelChange)="onBusca()"
+              placeholder="Nome do perfume..."
+              class="sidebar__input"
+            />
+          </div>
+
           <h3 class="sidebar__title">Filtrar por Marca</h3>
           <ul class="sidebar__list">
             <li>
@@ -54,17 +65,6 @@ import { ProdutoCardComponent } from '../../shared/produto-card/produto-card.com
               </li>
             }
           </ul>
-
-          <div class="sidebar__search">
-            <h3 class="sidebar__title">Buscar</h3>
-            <input
-              type="text"
-              [(ngModel)]="buscaTexto"
-              (ngModelChange)="onBusca()"
-              placeholder="Nome do perfume..."
-              class="sidebar__input"
-            />
-          </div>
         </aside>
 
         <!-- Products -->

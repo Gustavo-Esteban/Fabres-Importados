@@ -1,6 +1,6 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export interface CartItem {
@@ -11,9 +11,16 @@ export interface CartItem {
   imageUrl: string;
 }
 
+export interface AppliedCoupon {
+  code: string;
+  discountType: 'percent' | 'fixed_cart' | 'fixed_product';
+  amount: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private readonly CART_KEY = 'fabres_cart';
+  private readonly COUPON_KEY = 'fabres_coupon';
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
@@ -21,7 +28,12 @@ export class CartService {
     this.loadFromStorage(),
   );
 
+  private readonly couponSubject = new BehaviorSubject<AppliedCoupon | null>(
+    this.loadCouponFromStorage(),
+  );
+
   readonly cart$ = this.cartSubject.asObservable();
+  readonly coupon$ = this.couponSubject.asObservable();
 
   readonly count$ = this.cart$.pipe(
     map((items) => items.reduce((sum, i) => sum + i.quantity, 0)),
@@ -31,8 +43,26 @@ export class CartService {
     map((items) => items.reduce((sum, i) => sum + i.price * i.quantity, 0)),
   );
 
+  readonly discount$ = combineLatest([this.total$, this.coupon$]).pipe(
+    map(([total, coupon]) => {
+      if (!coupon) return 0;
+      if (coupon.discountType === 'percent') {
+        return Math.min(total, total * (coupon.amount / 100));
+      }
+      return Math.min(total, coupon.amount);
+    }),
+  );
+
+  readonly finalTotal$ = combineLatest([this.total$, this.discount$]).pipe(
+    map(([total, discount]) => Math.max(0, total - discount)),
+  );
+
   get items(): CartItem[] {
     return this.cartSubject.value;
+  }
+
+  get coupon(): AppliedCoupon | null {
+    return this.couponSubject.value;
   }
 
   addItem(item: Omit<CartItem, 'quantity'>): void {
@@ -66,7 +96,22 @@ export class CartService {
     );
   }
 
+  applyCoupon(coupon: AppliedCoupon): void {
+    if (this.isBrowser) {
+      localStorage.setItem(this.COUPON_KEY, JSON.stringify(coupon));
+    }
+    this.couponSubject.next(coupon);
+  }
+
+  removeCoupon(): void {
+    if (this.isBrowser) {
+      localStorage.removeItem(this.COUPON_KEY);
+    }
+    this.couponSubject.next(null);
+  }
+
   clearCart(): void {
+    this.removeCoupon();
     this.saveAndEmit([]);
   }
 
@@ -84,6 +129,16 @@ export class CartService {
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
+    }
+  }
+
+  private loadCouponFromStorage(): AppliedCoupon | null {
+    if (!this.isBrowser) return null;
+    try {
+      const stored = localStorage.getItem(this.COUPON_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
     }
   }
 }

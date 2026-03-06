@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { AppliedCoupon } from './cart.service';
 
 export interface WcImage {
   id: number;
@@ -61,5 +62,9 @@ export class WooService {
 
   criarPedido(pedido: unknown): Observable<unknown> {
     return this.http.post(`${this.base}/pedidos`, pedido);
+  }
+
+  validarCupom(code: string): Observable<AppliedCoupon> {
+    return this.http.get<AppliedCoupon>(`${this.base}/cupons/${encodeURIComponent(code)}`);
   }
 }

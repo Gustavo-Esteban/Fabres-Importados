@@ -2,16 +2,19 @@ import {
   Component,
   ChangeDetectionStrategy,
   inject,
+  signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CartService, CartItem } from '../../core/services/cart.service';
+import { WooService } from '../../core/services/woo.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-carrinho',
   standalone: true,
-  imports: [RouterLink, DecimalPipe],
+  imports: [RouterLink, DecimalPipe, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="carrinho">
@@ -77,10 +80,59 @@ import { toSignal } from '@angular/core/rxjs-interop';
               <span>Frete</span>
               <span class="summary__free">A calcular</span>
             </div>
+
+            @if (coupon()) {
+              <div class="summary__row summary__row--discount">
+                <span>Desconto</span>
+                <span class="summary__discount">-R$ {{ discount() | number:'1.2-2' }}</span>
+              </div>
+            }
+
             <div class="summary__divider"></div>
             <div class="summary__row summary__row--total">
               <span>Total</span>
-              <span>R$ {{ total() | number:'1.2-2' }}</span>
+              <span>R$ {{ finalTotal() | number:'1.2-2' }}</span>
+            </div>
+
+            <!-- Seção de cupom -->
+            <div class="coupon">
+              @if (coupon()) {
+                <div class="coupon__applied">
+                  <div class="coupon__applied-info">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <span class="coupon__code">{{ coupon()!.code.toUpperCase() }}</span>
+                  </div>
+                  <button class="coupon__remove" (click)="removerCupom()" aria-label="Remover cupom">×</button>
+                </div>
+              } @else {
+                <div class="coupon__form">
+                  <input
+                    type="text"
+                    [(ngModel)]="codigoCupom"
+                    placeholder="Código de cupom"
+                    class="coupon__input"
+                    [disabled]="cupomLoading()"
+                    (keydown.enter)="aplicarCupom()"
+                  />
+                  <button
+                    class="coupon__btn"
+                    (click)="aplicarCupom()"
+                    [disabled]="!codigoCupom.trim() || cupomLoading()"
+                  >
+                    @if (cupomLoading()) {
+                      <span class="coupon__spinner"></span>
+                    } @else {
+                      Aplicar
+                    }
+                  </button>
+                </div>
+                @if (cupomErro()) {
+                  <p class="coupon__error">Cupom inválido ou não encontrado.</p>
+                }
+              }
             </div>
 
             <a routerLink="/checkout" class="btn-gold summary__cta">
@@ -298,10 +350,126 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
     .summary__free { color: var(--color-gold); font-size: 0.8rem; }
 
+    .summary__discount {
+      color: #4caf50;
+      font-weight: 600;
+    }
+
     .summary__divider {
       height: 1px;
       background: var(--color-deep-gray);
     }
+
+    /* Cupom */
+    .coupon {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .coupon__form {
+      display: flex;
+      gap: 8px;
+    }
+
+    .coupon__input {
+      flex: 1;
+      padding: 9px 12px;
+      background: var(--color-obsidian, #0a0a0a);
+      border: 1px solid var(--color-deep-gray);
+      border-radius: var(--radius-sm);
+      color: var(--color-cream);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color var(--transition);
+      text-transform: uppercase;
+    }
+
+    .coupon__input:focus { border-color: var(--color-gold); }
+    .coupon__input::placeholder { color: var(--color-muted); text-transform: none; }
+    .coupon__input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .coupon__btn {
+      padding: 9px 14px;
+      background: transparent;
+      border: 1px solid var(--color-deep-gray);
+      border-radius: var(--radius-sm);
+      color: var(--color-muted);
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color var(--transition), color var(--transition);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 72px;
+    }
+
+    .coupon__btn:hover:not(:disabled) {
+      border-color: var(--color-gold);
+      color: var(--color-gold);
+    }
+
+    .coupon__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .coupon__spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--color-deep-gray);
+      border-top-color: var(--color-gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .coupon__error {
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      color: var(--color-error, #e74c3c);
+      letter-spacing: 0.05em;
+    }
+
+    .coupon__applied {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: rgba(76, 175, 80, 0.08);
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      border-radius: var(--radius-sm);
+    }
+
+    .coupon__applied-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #4caf50;
+    }
+
+    .coupon__code {
+      font-family: var(--font-label);
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      color: #4caf50;
+    }
+
+    .coupon__remove {
+      background: transparent;
+      border: none;
+      color: var(--color-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 2px;
+      transition: color var(--transition);
+    }
+
+    .coupon__remove:hover { color: var(--color-error, #e74c3c); }
 
     .summary__cta {
       display: block;
@@ -348,8 +516,17 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class CarrinhoComponent {
   private readonly cartService = inject(CartService);
+  private readonly woo = inject(WooService);
+
   readonly items = toSignal(this.cartService.cart$, { initialValue: [] as CartItem[] });
   readonly total = toSignal(this.cartService.total$, { initialValue: 0 });
+  readonly discount = toSignal(this.cartService.discount$, { initialValue: 0 });
+  readonly finalTotal = toSignal(this.cartService.finalTotal$, { initialValue: 0 });
+  readonly coupon = toSignal(this.cartService.coupon$, { initialValue: null });
+
+  codigoCupom = '';
+  readonly cupomLoading = signal(false);
+  readonly cupomErro = signal(false);
 
   incQty(item: CartItem): void {
     this.cartService.updateQuantity(item.productId, item.quantity + 1);
@@ -365,5 +542,31 @@ export class CarrinhoComponent {
 
   limpar(): void {
     this.cartService.clearCart();
+  }
+
+  aplicarCupom(): void {
+    const code = this.codigoCupom.trim();
+    if (!code || this.cupomLoading()) return;
+
+    this.cupomLoading.set(true);
+    this.cupomErro.set(false);
+
+    this.woo.validarCupom(code).subscribe({
+      next: (cupom) => {
+        this.cartService.applyCoupon(cupom);
+        this.codigoCupom = '';
+        this.cupomLoading.set(false);
+      },
+      error: () => {
+        this.cupomErro.set(true);
+        this.cupomLoading.set(false);
+      },
+    });
+  }
+
+  removerCupom(): void {
+    this.cartService.removeCoupon();
+    this.codigoCupom = '';
+    this.cupomErro.set(false);
   }
 }

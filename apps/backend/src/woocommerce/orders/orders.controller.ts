@@ -20,6 +20,7 @@ export interface CreateOrderDto {
   }[];
   payment_method?: string;
   payment_method_title?: string;
+  coupon_lines?: { code: string }[];
 }
 
 @Controller('pedidos')
